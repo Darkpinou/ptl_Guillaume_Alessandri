@@ -12,7 +12,7 @@ public class Notificateur {
 
     public void notifier(Client client, String sujet, String corps, String texteSms) {
         email.envoyer(client.getEmail(), sujet, corps);
-        if (client.getType() == TypeClient.PREMIUM) {
+        if (client.getType().recoitSms()) {
             sms.envoyer(client.getTelephone(), sujet, texteSms);
         }
     }

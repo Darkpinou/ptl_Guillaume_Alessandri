@@ -13,7 +13,7 @@ public class ValidateurClient {
             System.out.println("ERREUR : email invalide (" + email + ")");
             return false;
         }
-        if (type == TypeClient.ENTREPRISE && (siret == null || siret.length() != LONGUEUR_SIRET)) {
+        if (type.isSiretObligatoire() && (siret == null || siret.length() != LONGUEUR_SIRET)) {
             System.out.println("ERREUR : SIRET obligatoire (14 chiffres) pour une entreprise");
             return false;
         }

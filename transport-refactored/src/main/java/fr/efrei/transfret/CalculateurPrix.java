@@ -4,27 +4,10 @@ import java.util.List;
 
 public class CalculateurPrix {
 
-    private static final double ROUTE_PRIX_KM = 1.2;
-    private static final double ROUTE_PRIX_KG = 0.10;
-    private static final double RAIL_PRIX_KM = 0.8;
-    private static final double RAIL_PRIX_KG = 0.07;
-    private static final double RAIL_MINIMUM = 150;
-    private static final double MER_PRIX_KM = 0.5;
-    private static final double MER_PRIX_KG = 0.03;
-    private static final double MER_MINIMUM = 500;
-    private static final double AIR_PRIX_KM = 0.6;
-    private static final double AIR_PRIX_KG = 4.5;
-    private static final double AIR_KG_PAR_M3 = 167;
-
     private static final double MAJORATION_FRAGILE = 1.15;
     private static final double MAJORATION_DANGEREUX = 1.30;
     private static final double MAJORATION_REFRIGERE = 1.20;
     private static final double MAJORATION_URGENCE = 1.5;
-
-    private static final double SEUIL_GROSSE_COMMANDE = 5000;
-    private static final double COEF_ENTREPRISE_GROSSE_COMMANDE = 0.85;
-    private static final double COEF_ENTREPRISE = 0.90;
-    private static final double COEF_PREMIUM = 0.80;
 
     private static final double TAUX_ASSURANCE = 0.02;
     private static final double ASSURANCE_MINIMUM = 15;
@@ -45,25 +28,7 @@ public class CalculateurPrix {
             if (c.getType() == TypeMarchandise.REFRIGERE) refrigere = true;
         }
 
-        // tarif de base selon le mode
-        double prix;
-        if (mode == ModeTransport.ROUTE) {
-            prix = distance * ROUTE_PRIX_KM + poids * ROUTE_PRIX_KG;
-        } else if (mode == ModeTransport.RAIL) {
-            prix = distance * RAIL_PRIX_KM + poids * RAIL_PRIX_KG;
-            if (prix < RAIL_MINIMUM) prix = RAIL_MINIMUM;
-        } else if (mode == ModeTransport.MER) {
-            prix = distance * MER_PRIX_KM + poids * MER_PRIX_KG;
-            if (prix < MER_MINIMUM) prix = MER_MINIMUM;
-        } else if (mode == ModeTransport.AIR) {
-            double poidsTaxable = poids;
-            if (volume * AIR_KG_PAR_M3 > poids) {
-                poidsTaxable = volume * AIR_KG_PAR_M3;
-            }
-            prix = distance * AIR_PRIX_KM + poidsTaxable * AIR_PRIX_KG;
-        } else {
-            throw new IllegalArgumentException("Mode inconnu : " + mode);
-        }
+        double prix = mode.getTarif().calculer(distance, poids, volume);
 
         // suppléments
         if (fragile) prix = prix * MAJORATION_FRAGILE;
@@ -71,16 +36,7 @@ public class CalculateurPrix {
         if (refrigere) prix = prix * MAJORATION_REFRIGERE;
         if (urgent) prix = prix * MAJORATION_URGENCE;
 
-        // remise client
-        if (typeClient == TypeClient.ENTREPRISE) {
-            if (prix > SEUIL_GROSSE_COMMANDE) {
-                prix = prix * COEF_ENTREPRISE_GROSSE_COMMANDE;
-            } else {
-                prix = prix * COEF_ENTREPRISE;
-            }
-        } else if (typeClient == TypeClient.PREMIUM) {
-            prix = prix * COEF_PREMIUM;
-        }
+        prix = typeClient.getRemise().appliquer(prix);
 
         // assurance
         if (assurance) {
