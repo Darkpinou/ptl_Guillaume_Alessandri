@@ -6,7 +6,8 @@ public enum ModeTransport {
     ROUTE(new TarifRoute(), new DelaiRoute(), EnumSet.noneOf(Interdiction.class), null),
     RAIL(new TarifRail(), new DelaiRail(), EnumSet.of(Interdiction.REFRIGERE_HORS_ROUTE_ET_MER), null),
     MER(new TarifMer(), new DelaiMer(), EnumSet.noneOf(Interdiction.class), "pas d'option urgente pour le transport maritime"),
-    AIR(new TarifAir(), new DelaiAir(), EnumSet.of(Interdiction.DANGEREUX_EN_AERIEN, Interdiction.REFRIGERE_HORS_ROUTE_ET_MER), null);
+    AIR(new TarifAir(), new DelaiAir(), EnumSet.of(Interdiction.DANGEREUX_EN_AERIEN, Interdiction.REFRIGERE_HORS_ROUTE_ET_MER), null),
+    FLUVIAL(new TarifFluvial(), new DelaiFluvial(), EnumSet.of(Interdiction.REFRIGERE_HORS_ROUTE_ET_MER), "pas d'option urgente pour le transport fluvial");
 
     private final TarifTransport tarif;
     private final DelaiTransport delai;

@@ -10,7 +10,9 @@ public class Main {
         EmailService email = new EmailService();
         Notificateur notificateur = new Notificateur(email, new SmsService());
         ServiceClient serviceClient = new ServiceClient(db, new ValidateurClient(), email);
-        ServiceExpedition serviceExpedition = new ServiceExpedition(db, new CalculateurPrix(),
+        CalculateurPrix calculateur = new CalculateurPrix(List.of(SupplementFragile::new, SupplementDangereux::new,
+                SupplementRefrigere::new, SupplementHorsGabarit::new));
+        ServiceExpedition serviceExpedition = new ServiceExpedition(db, calculateur,
                 new AffectationVehicule(new Flotte()), new ValidateurExpedition(), new EstimateurDelai(), notificateur);
 
         System.out.println("\n----- Clients -----");

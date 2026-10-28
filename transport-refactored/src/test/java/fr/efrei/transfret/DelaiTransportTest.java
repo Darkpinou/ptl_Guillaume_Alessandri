@@ -32,6 +32,11 @@ class DelaiTransportTest {
     }
 
     @Test
+    void fluvial_360_km_par_jour_plus_un() {
+        assertEquals(3, new DelaiFluvial().calculer(365, false));
+    }
+
+    @Test
     void air_un_jour() {
         assertEquals(1, new DelaiAir().calculer(465, false));
     }

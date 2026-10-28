@@ -70,11 +70,25 @@ class DecorateurPrixTest {
         assertEquals(115, new Assurance(CENT_EUROS).calculer(colis(TypeMarchandise.STANDARD, 1, 300)), PRECISION);
     }
 
+    @Test
+    void hors_gabarit_majore_de_10_pourcent_au_dela_de_200_cm() {
+        List<Colis> colis = List.of(new Colis("long", 1, 201, 10, 10, TypeMarchandise.STANDARD, 0));
+        assertEquals(110, new SupplementHorsGabarit(CENT_EUROS).calculer(colis), PRECISION);
+    }
+
+    @Test
+    void hors_gabarit_pas_a_200_cm() {
+        List<Colis> colis = List.of(new Colis("limite", 1, 200, 200, 200, TypeMarchandise.STANDARD, 0));
+        assertEquals(100, new SupplementHorsGabarit(CENT_EUROS).calculer(colis), PRECISION);
+    }
+
     // base 4000 : seule l'urgence fait passer le seuil de 5000 de la remise entreprise.
     // Remise avant l'urgence : 5600. Assurance avant la remise : 5270.
     @Test
     void remise_apres_urgence_et_assurance_apres_remise() {
-        double prix = new CalculateurPrix().calculerPrixHT(colis(TypeMarchandise.STANDARD, 34420, 10000), 465,
+        CalculateurPrix calculateur = new CalculateurPrix(List.of(SupplementFragile::new, SupplementDangereux::new,
+                SupplementRefrigere::new, SupplementHorsGabarit::new));
+        double prix = calculateur.calculerPrixHT(colis(TypeMarchandise.STANDARD, 34420, 10000), 465,
                 ModeTransport.ROUTE, true, true, TypeClient.ENTREPRISE);
         assertEquals(5300, prix, PRECISION);
     }

@@ -60,3 +60,41 @@ B, le départ de B affiche maintenant le réglage des conteneurs frigorifiques, 
 `partir()` regarde tout le chargement du véhicule, alors que le legacy ne regardait que les colis de
 l'expédition démarrée. C'est plus juste physiquement : le navire transporte des colis réfrigérés, il doit les
 garder au froid.
+
+## Etape 8 : preuve par l'extension
+
+Pour FLUVIAL, trois fichiers existants changent : `ModeTransport` (une ligne qui donne le tarif, le délai, les
+interdictions et le refus d'urgence), `Flotte` (la péniche PEN-0001 de 2 500 t) et `Utils` (Paris - Le Havre,
+365 km). Le reste tient dans trois nouvelles classes : `TarifFluvial`, `DelaiFluvial` et `Peniche`. Le diagnostic
+prévoyait 5 fichiers existants (CalculateurPrix, ServiceExpedition, AffectationVehicule, Flotte, Utils) plus la
+péniche. `CalculateurPrix`, `ServiceExpedition`, `AffectationVehicule` et `ValidateurExpedition` ne changent pas : à part
+la ligne de l'enum, seules les données bougent (la flotte et la table des distances).
+
+Pour le hors gabarit, le diagnostic prévoyait 1 ou 2 fichiers (Colis, CalculateurPrix). `Colis` ne change pas, ses
+dimensions avaient déjà des getters. On ajoute `SupplementHorsGabarit` et une ligne dans l'assemblage de `Main`.
+`CalculateurPrix` a changé une fois : il reçoit maintenant la liste des suppléments marchandise au constructeur,
+pour la raison expliquée ci-dessous. Un prochain supplément marchandise ne le touchera plus.
+
+Au total, 5 fichiers existants de `src/main` sont modifiés (ModeTransport, Flotte, Utils, CalculateurPrix, Main),
+plus l'adaptateur de test. Le diagnostic en prévoyait 6 distincts (les 5 de FLUVIAL et Colis).
+
+Les 68 tests passent-ils toujours ? Avec FLUVIAL, oui. Avec le hors gabarit actif partout, 6 échouent : quatre
+tests de tarification, l'annulation en cours et une facture. Ils utilisent des colis de plus de 200 cm : les fûts
+de solvant (240 cm), les produits laitiers (240 cm), les bobines d'acier (1200 cm) et le conteneur (1200 cm). Le
+contrat décrit l'ancienne grille tarifaire, donc c'est un changement de spécification, pas une régression. Le
+contrat est interdit en écriture : l'adaptateur assemble la configuration qu'il décrit, sans hors gabarit, et
+`Main` assemble la nouvelle. Les 68 tests restent verts, la règle est active dans `Main` (les fûts passent de
+3011,58 à 3312,74 euros TTC) et ses tests unitaires la vérifient.
+
+## Grille d'auto-évaluation
+
+| Critère | ✔ | Preuve |
+|---|---|---|
+| 68 tests de contrat verts | ✔ | `mvn install` : 68/68 dans le legacy, 110/110 dans le refactored (68 de contrat et 42 unitaires) |
+| Aucun nombre magique | ✔ | Le grep des littéraux hors `static final` ne trouve que des chaînes (port JDBC, "TVA 20%", "14 chiffres"). Restent les données : table des distances (`Utils`), capacités de la flotte (`Flotte`), démo de `Main` |
+| Aucun `if` / `switch` sur un mode, un type de client ou un type de marchandise | ✔ | Aucun `switch`, aucune comparaison à une constante `ModeTransport.` ou `TypeClient.`. Les seuls tests sur un type de marchandise sont `TypeMarchandise.X.estPresentDans` dans la classe dédiée à X (suppléments, camions, navire), règle de la classe validée avant l'étape 4 |
+| Tarifs et remises en Strategy, suppléments en Decorator, chacun avec son test unitaire | ✔ | `TarifTransportTest` (9 tests, 5 tarifs), `PolitiqueRemiseTest` (5 tests, 3 remises), `DelaiTransportTest` (9 tests, 5 délais), `DecorateurPrixTest` (14 tests, 7 décorateurs, prix de base et ordre) |
+| Aucun `instanceof`, aucune `UnsupportedOperationException` | ✔ | `grep -rnE 'instanceof\|UnsupportedOperationException' transport-refactored/src` : aucun |
+| Aucun `static` modifiable, aucun singleton | ✔ | Grep des `static` non `final` et de `getInstance` dans `src/main` : aucun |
+| L'adaptateur ne contient que de la traduction | ✔ | Il convertit les DTO et les enums du contrat et construit le graphe d'objets (rôle fixé à l'étape 4), dont la liste de suppléments décrite par le contrat |
+| Ajouter `FLUVIAL` et « hors gabarit » n'a demandé que de nouvelles classes et l'assemblage | ✔ avec réserve | 4 nouvelles classes. Les fichiers existants changés sont l'assemblage (`ModeTransport`, `Main`) et des données (`Flotte`, `Utils`). Réserve : `CalculateurPrix` a changé une fois pour recevoir sa liste de suppléments, parce que le contrat impose l'ancienne grille |

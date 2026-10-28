@@ -40,7 +40,10 @@ public class NouveauSystemeAdapter implements SystemeTransport {
         email = new EmailService();
         sms = new SmsService();
         serviceClient = new ServiceClient(db, new ValidateurClient(), email);
-        serviceExpedition = new ServiceExpedition(db, new CalculateurPrix(), new AffectationVehicule(new Flotte()),
+        // le contrat décrit la grille tarifaire d'origine, sans le supplément hors gabarit
+        CalculateurPrix calculateur = new CalculateurPrix(List.of(SupplementFragile::new, SupplementDangereux::new,
+                SupplementRefrigere::new));
+        serviceExpedition = new ServiceExpedition(db, calculateur, new AffectationVehicule(new Flotte()),
                 new ValidateurExpedition(), new EstimateurDelai(), new Notificateur(email, sms));
         generateurFacture = new GenerateurFacture();
     }

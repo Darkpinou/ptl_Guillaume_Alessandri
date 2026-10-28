@@ -34,6 +34,16 @@ class TarifTransportTest {
     }
 
     @Test
+    void fluvial_au_km_et_au_kg() {
+        assertEquals(546, new TarifFluvial().calculer(365, 20000, 1), PRECISION);
+    }
+
+    @Test
+    void fluvial_minimum_300() {
+        assertEquals(300, new TarifFluvial().calculer(365, 1000, 1), PRECISION);
+    }
+
+    @Test
     void air_poids_reel() {
         assertEquals(2850, new TarifAir().calculer(1000, 500, 1), PRECISION);
     }
