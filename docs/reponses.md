@@ -39,3 +39,24 @@ suppléments et l'urgence, et l'assurance s'ajoute ensuite sans remise. `Calcula
 Assurance(Remise(Urgence(Réfrigéré(Dangereux(Fragile(prix de base)))))). Le test d'ordre prend une base de
 4000 euros, urgente, pour une entreprise assurée : il attend 5300 euros, alors qu'on obtiendrait 5600 avec la
 remise avant l'urgence et 5270 avec l'assurance avant la remise.
+
+## Etape 7 : découper IVehicule ou la réduire ?
+
+La piste 1 propose de découper `IVehicule` en petites interfaces (rouler, naviguer, voler, réfrigérer). Mais
+avec la piste 3, `demarrerExpedition` n'appelle plus que `partir(distance)`, et chaque véhicule roule, navigue,
+vole ou active sa réfrigération à l'intérieur de sa propre méthode. Plus aucun code extérieur n'appellerait
+`voler` ou `activerRefrigeration` : des interfaces `Volant` ou `Refrigerable` n'auraient aucun client. On a donc
+réduit `IVehicule` à ce que tous les véhicules savent faire, dont `partir()` et `peutPrendreEnCharge()`. Plus
+aucune méthode ne lève `UnsupportedOperationException`.
+
+La correction de Liskov change un comportement en ROUTE. Une expédition qui mélange un colis réfrigéré et un
+colis standard part en camion frigorifique. Dans le legacy, `CamionFrigorifique.charger` refusait le colis
+standard avec une `IllegalArgumentException`, et la création de l'expédition plantait : un camion frigorifique
+ne pouvait pas remplacer un `Camion`, c'est la violation signalée par la feuille de route. Maintenant `charger`
+accepte tous les colis, comme dans `Camion`, et l'expédition mixte est acceptée.
+
+Un second écart vient de la piste 3. Quand un navire porte une expédition réfrigérée A et une expédition standard
+B, le départ de B affiche maintenant le réglage des conteneurs frigorifiques, ce que le legacy ne faisait pas.
+`partir()` regarde tout le chargement du véhicule, alors que le legacy ne regardait que les colis de
+l'expédition démarrée. C'est plus juste physiquement : le navire transporte des colis réfrigérés, il doit les
+garder au froid.

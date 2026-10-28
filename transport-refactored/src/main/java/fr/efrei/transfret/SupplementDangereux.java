@@ -11,7 +11,7 @@ public class SupplementDangereux extends DecorateurPrix {
     }
 
     public double calculer(List<Colis> colis) {
-        if (contient(colis, TypeMarchandise.DANGEREUX)) {
+        if (TypeMarchandise.DANGEREUX.estPresentDans(colis)) {
             return prix.calculer(colis) * MAJORATION;
         }
         return prix.calculer(colis);

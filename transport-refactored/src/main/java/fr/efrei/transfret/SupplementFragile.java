@@ -11,7 +11,7 @@ public class SupplementFragile extends DecorateurPrix {
     }
 
     public double calculer(List<Colis> colis) {
-        if (contient(colis, TypeMarchandise.FRAGILE)) {
+        if (TypeMarchandise.FRAGILE.estPresentDans(colis)) {
             return prix.calculer(colis) * MAJORATION;
         }
         return prix.calculer(colis);

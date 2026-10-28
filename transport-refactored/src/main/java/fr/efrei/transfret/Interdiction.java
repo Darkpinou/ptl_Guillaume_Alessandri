@@ -15,12 +15,7 @@ public enum Interdiction {
     }
 
     public boolean concerne(List<Colis> colis) {
-        for (Colis c : colis) {
-            if (c.getType() == type) {
-                return true;
-            }
-        }
-        return false;
+        return type.estPresentDans(colis);
     }
 
     public String getMessage() {

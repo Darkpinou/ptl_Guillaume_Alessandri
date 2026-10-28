@@ -11,7 +11,7 @@ public class SupplementRefrigere extends DecorateurPrix {
     }
 
     public double calculer(List<Colis> colis) {
-        if (contient(colis, TypeMarchandise.REFRIGERE)) {
+        if (TypeMarchandise.REFRIGERE.estPresentDans(colis)) {
             return prix.calculer(colis) * MAJORATION;
         }
         return prix.calculer(colis);

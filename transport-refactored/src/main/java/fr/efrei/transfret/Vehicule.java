@@ -5,15 +5,19 @@ import java.util.List;
 
 public abstract class Vehicule implements IVehicule {
 
+    protected static final double TEMPERATURE_REFRIGERATION = 4;
+
     protected String immatriculation;
     protected double capaciteMax;
     protected double chargeActuelle;
     protected boolean disponible = true;
     protected List<Colis> chargement = new ArrayList<Colis>();
+    private final ModeTransport mode;
 
-    public Vehicule(String immatriculation, double capaciteMax) {
+    public Vehicule(String immatriculation, double capaciteMax, ModeTransport mode) {
         this.immatriculation = immatriculation;
         this.capaciteMax = capaciteMax;
+        this.mode = mode;
     }
 
     public String getImmatriculation() {
@@ -51,7 +55,13 @@ public abstract class Vehicule implements IVehicule {
         }
     }
 
-    public void faireLePlein() {
+    public boolean peutPrendreEnCharge(List<Colis> colis, ModeTransport mode) {
+        return mode == this.mode && accepte(colis);
+    }
+
+    protected abstract boolean accepte(List<Colis> colis);
+
+    protected void faireLePlein() {
         System.out.println("Plein effectué pour " + immatriculation);
     }
 }
