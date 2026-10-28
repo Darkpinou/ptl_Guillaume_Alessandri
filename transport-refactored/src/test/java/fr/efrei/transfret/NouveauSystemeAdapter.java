@@ -20,7 +20,7 @@ import java.util.OptionalDouble;
 import java.util.stream.Collectors;
 
 /**
- * Branche le code historique sur les tests de contrat.
+ * Branche le nouveau code sur les tests de contrat.
  * <p>
  * Chaque réinitialisation construit un nouveau graphe d'objets. La conversion des
  * énumérations du contrat est confinée ici.
