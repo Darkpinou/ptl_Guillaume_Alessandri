@@ -30,3 +30,12 @@ son message d'erreur, repris mot pour mot du legacy. Le validateur parcourt les 
 déclaration, qui suit l'ordre des contrôles du legacy : dangereux, réfrigéré, puis urgence. Ajouter un mode ne
 demande donc aucune modification du validateur. `TypeClient` dit si le SIRET est obligatoire (facture et
 `ValidateurClient`) et si le client reçoit des SMS (`Notificateur`).
+
+## Etape 6 : et la remise ?
+
+La remise devient un décorateur, `Remise`, qui délègue à la `PolitiqueRemise` du type de client (étape 5). Sa
+place dans la chaîne compte : la remise entreprise compare au seuil de 5000 euros le prix majoré par les
+suppléments et l'urgence, et l'assurance s'ajoute ensuite sans remise. `CalculateurPrix` assemble donc
+Assurance(Remise(Urgence(Réfrigéré(Dangereux(Fragile(prix de base)))))). Le test d'ordre prend une base de
+4000 euros, urgente, pour une entreprise assurée : il attend 5300 euros, alors qu'on obtiendrait 5600 avec la
+remise avant l'urgence et 5270 avec l'assurance avant la remise.
